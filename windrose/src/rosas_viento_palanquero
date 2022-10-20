@@ -1,0 +1,37 @@
+!pip3 install windrose
+from windrose import WindroseAxes
+from matplotlib import pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import pandas as pd
+import windrose
+from google.colab import drive
+drive.mount('/content/drive')
+
+PATH_DRIVE = 'drive/MyDrive/Seminario-3-master'
+PATH_DADOS = '/preprocess/dados/'
+PATH_FIGURE = '/windrose/figure/'
+NOMBRE_ESTACION = 'palanquero'
+FILE_WINDROSE = f'/tratados/{NOMBRE_ESTACION}_tratados_viento.csv'
+
+PATH_FILE = PATH_DRIVE + PATH_DADOS + NOMBRE_ESTACION + FILE_WINDROSE
+PATH_SAVE_FIGURE = PATH_DRIVE + PATH_FIGURE + NOMBRE_ESTACION + '/'
+
+df = pd.read_csv(PATH_FILE, sep = ';')
+df['MES'] = df['FECHA'].apply(lambda x: x[5:7])
+df['HORA'] = df['FECHA'].apply(lambda x: x[11:13])
+
+def plot_windrose(df, title, path_to_save):
+  ax = WindroseAxes.from_ax()
+
+  ax.bar(df['DIRECVIENTO'], df['VELVIENTO'], normed=True, opening=0.8, bins=np.arange(0.0, 10, 2), edgecolor='white', cmap=cm.cool)
+  ax.set_legend(loc = 'best')
+  ax.set_xticklabels(['E', 'NE', 'N', 'NW',  'W', 'SW', 'S', 'SE'])
+  plt.title(title)
+  plt.savefig(path_to_save)
+  plt.show()
+
+title = f'Rosa de viento datos totales - {NOMBRE_ESTACION.capitalize()}'
+path_to_save = PATH_SAVE_FIGURE + f'windrose_datos_totales_{NOMBRE_ESTACION.lower()}.png'
+
+plot_windrose(df, title, path_to_save)
